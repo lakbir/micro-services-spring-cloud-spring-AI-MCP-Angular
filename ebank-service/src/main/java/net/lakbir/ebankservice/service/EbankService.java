@@ -3,6 +3,8 @@ package net.lakbir.ebankservice.service;
 
 import lombok.AllArgsConstructor;
 import net.lakbir.ebankservice.entities.BankAccount;
+import net.lakbir.ebankservice.feign.CustomerRestClient;
+import net.lakbir.ebankservice.model.Customer;
 import net.lakbir.ebankservice.repository.BankAccountRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +20,18 @@ import java.util.UUID;
 @AllArgsConstructor
 public class EbankService {
 
-    private BankAccountRepository bankAccountRepository;
+    private final BankAccountRepository bankAccountRepository;
+    private final CustomerRestClient customerRestClient;
 
     public List<BankAccount> getBankAccounts(){
         return bankAccountRepository.findAll();
     }
 
     public BankAccount getBankAccount(String id){
-        return bankAccountRepository.findById(id).orElseThrow(() -> new RuntimeException("Bank account not found"));
+        BankAccount bankAccount = bankAccountRepository.findById(id).orElseThrow(() -> new RuntimeException("Bank account not found"));
+
+        bankAccount.setCustomer(customerRestClient.getCustomer(bankAccount.getCustomerId()));
+        return bankAccount;
     }
 
     public List<BankAccount> getBankAccountsByCustomerId(long customerId){
@@ -33,8 +39,15 @@ public class EbankService {
     }
 
     public BankAccount saveBankAccount(BankAccount bankAccount){
-        bankAccount.setId(UUID.randomUUID().toString());
-        bankAccount.setCreatedAt(new Date());
-        return bankAccountRepository.save(bankAccount);
+        try {
+            Customer customer = customerRestClient.getCustomer(bankAccount.getCustomerId());
+            bankAccount.setId(UUID.randomUUID().toString());
+            bankAccount.setCreatedAt(new Date());
+            bankAccount.setCustomer(customer);
+            return bankAccountRepository.save(bankAccount);
+        } catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
+
     }
 }
