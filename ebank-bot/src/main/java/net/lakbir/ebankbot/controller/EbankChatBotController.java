@@ -1,6 +1,7 @@
-package net.lakbir.ebankbot;
+package net.lakbir.ebankbot.controller;
 
 
+import net.lakbir.ebankbot.agents.EbankAgentAI;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -15,17 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EbankChatBotController {
 
-    private ChatClient chatClient;
+    private EbankAgentAI ebankAgentAI;
 
-    public EbankChatBotController(ChatClient.Builder chatClient, ChatMemory chatMemory) {
-        this.chatClient =  chatClient
-                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
-                .build();
+    public EbankChatBotController(EbankAgentAI ebankAgentAI) {
+        this.ebankAgentAI = ebankAgentAI;
     }
 
     @GetMapping("/chat")
     public String chat(@RequestParam(name = "query", defaultValue = "Bonjour") String query){
-        return chatClient.prompt(query).call().content();
+        return this.ebankAgentAI.chat(query);
     }
 
 }
