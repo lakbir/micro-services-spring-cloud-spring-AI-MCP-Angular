@@ -6,6 +6,8 @@ import net.lakbir.ebankservice.entities.BankAccount;
 import net.lakbir.ebankservice.feign.CustomerRestClient;
 import net.lakbir.ebankservice.model.Customer;
 import net.lakbir.ebankservice.repository.BankAccountRepository;
+import org.springaicommunity.mcp.annotation.McpTool;
+import org.springaicommunity.mcp.annotation.McpToolParam;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -23,22 +25,26 @@ public class EbankService {
     private final BankAccountRepository bankAccountRepository;
     private final CustomerRestClient customerRestClient;
 
+    @McpTool(description = "Get all  bank accounts")
     public List<BankAccount> getBankAccounts(){
         return bankAccountRepository.findAll();
     }
 
-    public BankAccount getBankAccount(String id){
+    @McpTool(description = "get a bank account by id")
+    public BankAccount getBankAccount(@McpToolParam(description = "The bank account id") String id){
         BankAccount bankAccount = bankAccountRepository.findById(id).orElseThrow(() -> new RuntimeException("Bank account not found"));
 
         bankAccount.setCustomer(customerRestClient.getCustomer(bankAccount.getCustomerId()));
         return bankAccount;
     }
 
+
     public List<BankAccount> getBankAccountsByCustomerId(long customerId){
         return bankAccountRepository.findByCustomerId(customerId);
     }
 
-    public BankAccount saveBankAccount(BankAccount bankAccount){
+    @McpTool(description = "Save a new bank account")
+    public BankAccount saveBankAccount( @McpToolParam(description = "The bank account to save(balance, type, customerId)") BankAccount bankAccount){
         try {
             Customer customer = customerRestClient.getCustomer(bankAccount.getCustomerId());
             bankAccount.setId(UUID.randomUUID().toString());
