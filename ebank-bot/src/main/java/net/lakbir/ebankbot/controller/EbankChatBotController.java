@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 /**
  * Created by lakbir.abderrahim on 04/02/2026
@@ -27,6 +28,12 @@ public class EbankChatBotController {
     @GetMapping(value = "/chat", produces = MediaType.TEXT_PLAIN_VALUE)
     public String chat(@RequestParam(name = "query", defaultValue = "Bonjour") String query){
         return this.ebankAgentAI.chat(new Prompt(query));
+    }
+
+
+    @GetMapping(value = "/chatStream", produces = MediaType.TEXT_PLAIN_VALUE)
+    public Flux<String> chatStream(@RequestParam(name = "query", defaultValue = "Bonjour") String query){
+        return this.ebankAgentAI.chatStream(new Prompt(query));
     }
 
 }
