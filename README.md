@@ -31,3 +31,53 @@ Ce repository présente une architecture **simple, modulaire et maintenable** po
   - Appels **OpenFeign/REST** vers services métiers si besoin d’enrichissement.
 
 ---
+
+## 🔄 Flux types
+
+### 1) Consultation d’informations côté Angular
+
+Angular (JWT) → Gateway → Customer Service → (réponse) → Gateway → Angular
+
+### 2) Flux Telegram → Chatbot IA + Services métiers
+
+Ce flux décrit la conversation entre l’utilisateur via Telegram, le chatbot, le LLM et les services métiers.
+Telegram
+→ /webhook/telegram
+→ Chatbot Service
+→ (appel LLM)
+↘ si nécessaire → Customer Service / Ebank Service
+Telegram ← Chatbot Service ← LLM / Services
+
+- Telegram envoie un message via son **webhook**.
+- Le **Chatbot Service** reçoit l’update, extrait le message et décide du traitement.
+- Le service envoie une requête au **LLM** pour générer une réponse intelligente.
+- Si nécessaire, il interroge les services métiers pour enrichir la réponse (infos client, solde, etc.).
+- La réponse est envoyée à Telegram via l’API officielle.
+
+---
+
+## 🧑‍💻 Démarrage en local
+
+Cette section explique comment exécuter l’architecture localement, avec ou sans Docker.
+
+### 🔧 Prérequis
+
+Avant de démarrer, installer :
+
+- **JDK 21** (ou version compatible Spring Boot)
+- **Node.js 20+**
+- **Angular CLI** :
+  ```bash
+  npm install -g @angular/cli
+
+Maven ou Gradle (via mvnw ou gradlew) (Optionnel) Docker + Docker Compose
+
+Lancer les services Spring Boot localement (sans Docker)
+
+Dans chaque dossier : gateway, customer-service, ebank-service, chatbot-service
+Lancer :
+
+  ```bash
+        ./mvnw spring-boot:run
+        # ou
+        ./gradlew bootRun
